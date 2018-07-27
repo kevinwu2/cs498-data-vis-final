@@ -27,6 +27,32 @@ svg {
   fill: steelblue;
 }
 
+#tooltip {
+  position: absolute;
+  width: auto;
+  height: auto;
+  padding: 10px;
+  background-color: white;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+#tooltip.hidden {
+  display: none;
+}
+
+#tooltip p {
+  margin: 0;
+  font-family: Futura;
+  font-size: 16px;
+  line-height: 20px;
+}
+
 .country-borders {
   fill: none;
   stroke: #4d4d4d;
@@ -56,6 +82,10 @@ svg {
 
 </style>
 <body>
+  <div id="tooltip" class="hidden">
+    <p><strong><span id="ctyname">Country</span></strong></p>
+    <p>Trade Balance: $ <span id="value">100</span> M</p>
+  </div>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
@@ -141,7 +171,9 @@ function ready(error, world, trade_data) {
     .enter().append("path")
       .attr("d", path)
       .attr("fill", function(d) { return color(d.bal); })
-      .on("click", clicked);
+      .on("click", clicked)
+      .on("mouseover", showtooltip)
+      .on("mouseout", hidetooltip);
 
   g.append("path")
       .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
@@ -150,7 +182,6 @@ function ready(error, world, trade_data) {
 }; // end function ready
 
 function clicked(d) {
-  var x, y, k;
 
   /*
   if(d != null)
@@ -161,6 +192,8 @@ function clicked(d) {
     console.log(d.imp);
   }
   */
+
+  var x, y, k;
 
   if (d && centered !== d) {
     var centroid = path.centroid(d);
@@ -272,5 +305,53 @@ function clicked(d) {
         } // endif(dataset || centered)
       }); // end .on("end", function()
 } // end function clicked
+
+function showtooltip(d)
+{
+  if(d && (typeof d.bal != "undefined"))
+  {
+
+    // set tooltip values
+    var tip = d3.select("#tooltip");
+
+    tip.select("#ctyname")
+      .text(d.cty);
+    tip.select("#value")
+      .text(numberWithCommas(Math.round(d.bal)));
+
+    // A little hack to create the tooltip (but set position outside of view), get the width and height
+    // and then set the correct positions based on those values
+    d3.select("#tooltip").classed("hidden", false).style("left", -10000 + "px").style("top", -10000 + "px");
+
+    var bbox = tip.node().getBoundingClientRect();
+    var tooltipWidth = bbox.width;
+    var tooltipHeight = bbox.height;
+
+    // get position based on mouse values, shift if out of bounds
+    var x = d3.event.clientX + tooltipWidth < width ? d3.event.clientX : width - tooltipWidth;
+    var y = d3.event.clientY + tooltipHeight < height ? d3.event.clientY : height - tooltipHeight;
+
+    //var debug = [event.clientX, event.clientY, x, y];
+    //console.log(debug);
+
+    tip.style("left", x + "px")
+       .style("top", y + "px");
+
+    d3.select("#tooltip").classed("hidden", false);
+
+  }
+
+} // end function showtooltip
+
+function hidetooltip(d)
+{
+  d3.select("#tooltip").classed("hidden", true);
+}
+
+const numberWithCommas = (x) => {
+  var parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+}
 
 </script>
