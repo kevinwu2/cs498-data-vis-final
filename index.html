@@ -48,7 +48,7 @@ svg {
 
 #tooltip p {
   margin: 0;
-  font-family: Futura;
+  font-family: sans-serif;
   font-size: 16px;
   line-height: 20px;
 }
@@ -284,6 +284,15 @@ function clicked(d) {
               .attr("width", bx.bandwidth())
               .attr("y", function(d) { return by(d.val); })
               .attr("height", function(d) { return boxInnerHeight - by(d.val); });
+          chart.selectAll(".bar")
+              .data(dataset)
+            .enter().append("text")
+              .attr("x", function(d) { return bx(d.kind) + 5; })
+              .attr("y", function(d) { return by(d.val) + 15; })
+              .attr("text-anchor", "left")
+              .attr("font-size", "10px")
+              .style("fill", "white")
+              .text(function(d) { return numberWithCommas(Math.round(d.val)); });
 
           // attach title
           chart.append("text")
@@ -293,6 +302,15 @@ function clicked(d) {
             .style("font-size", "16px")
             .style("text-decoration", "underline")
             .text("Trade Balance with " + d.cty);
+
+          // attach balance at bottom of chart
+          chart.append("text")
+            .attr("x", boxWidth - boxInnerWidth)
+            .attr("y", boxInnerHeight)
+            .attr("dy", "3em")
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .text("Difference: $ " + numberWithCommas(Math.round(d.bal)) + "M");
 
           // draw a rectangle with transparent background and put it in the back
           var bbox = chart.node().getBBox();
@@ -310,7 +328,6 @@ function showtooltip(d)
 {
   if(d && (typeof d.bal != "undefined"))
   {
-
     // set tooltip values
     var tip = d3.select("#tooltip");
 
