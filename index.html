@@ -2,20 +2,32 @@
 <meta charset="utf-8">
 <style>
 
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+svg {
+  display: block;
+}
+
 .background {
   fill: none;
   pointer-events: all;
 }
 
-.states {
+.countries {
   fill: #aaa;
 }
+.countries :hover {
+  fill: #ffbf00;
+}
 
-.states .active {
+.countries .active {
   fill: orange;
 }
 
-.state-borders {
+.country-borders {
   fill: none;
   stroke: #fff;
   stroke-width: 0.5px;
@@ -24,23 +36,39 @@
   pointer-events: none;
 }
 
+.box-borders {
+  fill: white;
+  fill-opacity: .75;
+  stroke: black;
+  stroke-width: 1px;
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
 </style>
 <body>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
 <script>
 
-var width = 960,
-    height = 600,
+var width = window.innerWidth,
+    height = window.innerHeight,
     centered;
 
-var projection = d3.geoAlbersUsa()
-    .scale(1070)
+var projection = d3.geoNaturalEarth1()
+    .scale(275)
     .translate([width / 2, height / 2]);
 
-var path = d3.geoPath();
-// FIXME: The projection messes up the display
-//    .projection(projection);
+var path = d3.geoPath(projection);
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -54,26 +82,77 @@ svg.append("rect")
 
 var g = svg.append("g");
 
-//d3.json("us.json", function(error, us) {
-d3.json("https://d3js.org/us-10m.v1.json", function(error, us) {
+// box properties
+var boxMargin = {top: 20, right: 20, bottom: 70, left: 75};
+var boxWidth = 350, boxHeight = 400,
+    boxInnerWidth = boxWidth - boxMargin.left - boxMargin.right,
+    boxInnerHeight = boxHeight - boxMargin.top - boxMargin.bottom;
+
+var bx = d3.scaleBand().rangeRound([0, boxInnerWidth]).padding(0.05);
+var by = d3.scaleLinear().range([boxInnerHeight, 0]);
+
+var xAxis = d3.axisBottom(bx);
+var yAxis = d3.axisLeft(by).ticks(5);
+
+d3.queue()
+  .defer(d3.json, "https://d3js.org/world-50m.v1.json")
+  .defer(d3.csv, "data.csv")
+  .await(ready)
+
+//d3.json("https://d3js.org/world-50m.v1.json", function(error, world) {
+function ready(error, world, trade_data) {
   if (error) throw error;
 
+  d_bal = {};
+  d_exp = {};
+  d_imp = {};
+  d_cty = {};
+
+  //console.log(trade_data);
+
+  topodata = topojson.feature(world, world.objects.countries);
+
+  trade_data.forEach(function(d) {
+    d_bal[d.M49] = +d.BAL;
+    d_exp[d.M49] = +d.EYR;
+    d_imp[d.M49] = +d.IYR;
+    d_cty[d.M49] = d.CTYNAME;
+  });
+  topodata.features.forEach(function(d) {
+    d.bal = d_bal[d.id];
+    d.exp = d_exp[d.id];
+    d.imp = d_imp[d.id];
+    d.cty = d_cty[d.id];
+  });
+
+  //console.log(topodata.features);
+
   g.append("g")
-      .attr("class", "states")
+      .attr("class", "countries")
     .selectAll("path")
-      .data(topojson.feature(us, us.objects.states).features)
+      .data(topodata.features)
     .enter().append("path")
       .attr("d", path)
       .on("click", clicked);
 
   g.append("path")
-      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
-      .attr("class", "state-borders")
+      .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
+      .attr("class", "country-borders")
       .attr("d", path);
-});
+};
 
 function clicked(d) {
   var x, y, k;
+
+  /*
+  if(d != null)
+  {
+    console.log(d.cty);
+    console.log(d.bal);
+    console.log(d.exp);
+    console.log(d.imp);
+  }
+  */
 
   if (d && centered !== d) {
     var centroid = path.centroid(d);
@@ -88,13 +167,102 @@ function clicked(d) {
     centered = null;
   }
 
+  //console.log(centered)
+
+  // dataset is true and will point to the json data if data is available,
+  // otherwise false from here on out
+  var dataset = (d != null) && (typeof d.bal != "undefined");
+  if(dataset == true)
+  {
+    var text = '[' +
+        '{"kind": "export", "val": ' + d.exp + '},' +
+        '{"kind": "import", "val": ' + d.imp + '} ]';
+    dataset = JSON.parse(text);
+    console.log(dataset);
+
+    bx.domain(dataset.map(function(d) { return d.kind; }));
+    by.domain([0, d3.max(dataset, function(d) { return d.val; }) ]);
+
+  }
+
   g.selectAll("path")
       .classed("active", centered && function(d) { return d === centered; });
 
   g.transition()
+      // transition code
       .duration(750)
       .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")scale(" + k + ")translate(" + -x + "," + -y + ")")
-      .style("stroke-width", 1.5 / k + "px");
-}
+      .style("stroke-width", 1.5 / k + "px")
+      // generate a pop up chart at the end of the transition
+      .on("end", function(){
+
+        // check if a box already exists, if so, remove it
+        var box_active = d3.select("g#popupbox").empty() ? 0 : 1;
+        //console.log(box_active);
+        if(box_active)
+          d3.select("g#popupbox").remove();
+
+        // if dataset is ready
+        // or if centered has any data, this indicates transition from cty to cty
+        if(dataset && centered)
+        {
+          // create chart box area with id: popupbox
+          var chart = svg.append("g")
+              .attr("id", "popupbox")
+              .attr("transform",
+                    "translate(" + (width - boxWidth) + "," + (height - boxHeight) + ")");
+
+          // create x-axis
+          chart.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + boxInnerHeight + ")")
+              .call(xAxis)
+            .selectAll("text")
+              .style("text-anchor", "end")
+              .attr("dx", "1.5em")
+              .attr("dy", ".55em");
+
+          // create y-axis and attach y-axis label
+          chart.append("g")
+                .attr("class", "y axis")
+                .call(yAxis);
+          chart.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - boxMargin.left)
+                .attr("x", 0 - (boxInnerHeight / 2))
+                .attr("dy", "1em")
+                .style("text-anchor", "middle")
+                .text("Millions USD");
+
+          // generate bar chart
+          chart.selectAll(".bar")
+              .data(dataset)
+            .enter().append("rect")
+              .style("fill", "steelblue")
+              .attr("x", function(d) { return bx(d.kind); })
+              .attr("width", bx.bandwidth())
+              .attr("y", function(d) { return by(d.val); })
+              .attr("height", function(d) { return boxInnerHeight - by(d.val); });
+
+          // attach title
+          chart.append("text")
+            .attr("x", (boxInnerWidth / 2))
+            .attr("y", 0 - (boxMargin.top / 2))
+            .attr("text-anchor", "middle")
+            .style("font-size", "16px")
+            .style("text-decoration", "underline")
+            .text("Trade Balance with " + d.cty);
+
+          // draw a rectangle with transparent background and put it in the back
+          var bbox = chart.node().getBBox();
+          chart.insert("rect", ":first-child")
+            .attr("x", bbox.x)
+            .attr("y", bbox.y)
+            .attr("width", bbox.width)
+            .attr("height", bbox.height)
+            .attr("class", "box-borders");
+        } // endif(dataset || centered)
+      }); // end .on("end", function()
+} // end function ready
 
 </script>
