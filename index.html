@@ -80,11 +80,36 @@ svg {
   shape-rendering: crispEdges;
 }
 
+#button-option {
+  position: absolute;
+}
+
+#essay-div {
+  position: absolute;
+  width: auto;
+  height: auto;
+}
+#essay-div.hidden {
+  display: none;
+}
+
 </style>
 <body>
   <div id="tooltip" class="hidden">
     <p><strong><span id="ctyname">Country</span></strong></p>
     <p>Trade Balance: $ <span id="value">100</span> M</p>
+  </div>
+
+  <div id="button-option">
+    <input name="updateButton"
+           type="button"
+           value="Information"
+           onclick="showEssay()" />
+  </div>
+
+  <div id="essay-div" class="hidden">
+    <object id="essay" type="text/plain" data="essay.txt" border="1">
+    </object>
   </div>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
@@ -228,7 +253,7 @@ function ready(error, world, trade_data) {
     .attr("height", bbox.height + 10)
     .style("fill", "black")
     .style("stroke", "white")
-    .style("stroke-width", "2")
+    .style("stroke-width", "2px")
     .style("shape-rendering", "crispEdges");
 
 }; // end function ready
@@ -428,4 +453,33 @@ const numberWithCommas = (x) => {
   return parts.join(".");
 }
 
+function showEssay()
+{
+  var essayPadding = 30;
+  var essayWidth = width - essayPadding*2;
+  var essayHeight = height - essayPadding*2;
+
+  essayDiv = d3.select("#essay-div");
+
+  if(essayDiv.classed("hidden") == true)
+  {
+    essayDiv.style("width", essayWidth + "px")
+            .style("height", essayHeight + "px")
+            .style("top", essayPadding + "px")
+            .style("left", essayPadding + "px");
+
+    d3.select("#essay")
+            .style("width", essayWidth + "px")
+            .style("height", essayHeight + "px")
+            .style("top", essayPadding + "px")
+            .style("left", essayPadding + "px")
+            .style("background-color", "white");
+
+    essayDiv.classed("hidden", false);
+  }
+  else
+  {
+    essayDiv.classed("hidden", true);
+  }
+}
 </script>
