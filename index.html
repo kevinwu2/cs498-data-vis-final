@@ -111,8 +111,8 @@ svg.append("rect")
     .attr("height", height)
     .on("click", clicked);
 
+// main world map
 var g = svg.append("g");
-
 
 // box properties
 var boxMargin = {top: 20, right: 20, bottom: 70, left: 75};
@@ -179,6 +179,52 @@ function ready(error, world, trade_data) {
       .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
       .attr("class", "country-borders")
       .attr("d", path);
+
+  // generate legend
+  var lg = svg.append("g")
+              .attr("id", "legend")
+              .attr("transform",
+                    "translate(" + 20 + "," + (height - 12*20 - 26) + ")");
+
+  var legend = lg.selectAll(".legend")
+      .data(color.ticks(11).slice(1))
+    .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(" + 0 + "," + (i * 20) + ")"; });
+
+  legend.append("rect")
+      .attr("width", 20)
+      .attr("height", 20)
+      .style("fill", color);
+  legend.append("text")
+      .attr("x", 26)
+      .attr("y", 10)
+      .attr("font-size", "10px")
+      .style("fill", "white")
+      .attr("dy", ".35em")
+      .text(String);
+  lg.append("text")
+      .attr("class", "label")
+      .attr("x", 0)
+      .attr("y", -20)
+      .attr("dy", ".35em")
+      .attr("font-size", "16px")
+      .style("fill", "white")
+      .style("text-decoration", "bold")
+      .text("Legend: ");
+
+  // draw a rectangle with transparent background and put it in the back
+  var bbox = lg.node().getBBox();
+  lg.insert("rect", ":first-child")
+    .attr("x", bbox.x - 10)
+    .attr("y", bbox.y)
+    .attr("width", bbox.width + 20)
+    .attr("height", bbox.height + 10)
+    .style("fill", "black")
+    .style("stroke", "white")
+    .style("stroke-width", "2")
+    .style("shape-rendering", "crispEdges");
+
 }; // end function ready
 
 function clicked(d) {
