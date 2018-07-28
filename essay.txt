@@ -1,0 +1,25 @@
+Quick summary of events:
+ - Clicking on the button "About this Visualization" will bring you here. Clicking on the button again will close this box.
+ - The country's color will change to "powderblue" when hovered.
+ - A tooltip that follows your mouse will be shown when hovering over a country that contains data (not colored black)
+ - Each country can be clicked. Clicking on a country will zoom in the view and a bar chart will be shown on the bottom right.
+ - Click on the country again will zoom out to the world overview and that country's bar chart will be cleared.
+ - Scrolling the mouse wheel up will zoom in the view. Scrolling the mouse wheel down will zoom out.
+ - While zoomed-in, holding the left mouse button and moving the mouse allows you to pan across the view.
+
+ Known issues:
+  - Map and text may be slow to render at times.
+  - Sometimes a country may not zoom in with a single click. Clicking again should fix the issue.
+  - Some countries that have non-contiguous territories like France and Russia will not appear to zoom in entirely.
+
+Detailed information about this visualization:
+
+This is a visualization of US Trade Balance with Partnered Countries Worldwide. A trade balance is a function of the amount of revenue produced by exports minus the cost of purchasing imports. (Trade Balance = Exports - Imports). Therefore, a trade deficit is a negative balance while a trade surplus is a positive balance.
+
+This visualization follows an interactive slide show but with a twist. An interactive slideshow consists of various "scenes" in which each scene contains some addiional information about said scene. The user has the choice to view such details or choose to ignore scenes they are not interested in. This visualization follows that structure. Each "scene" consists of a country. Hovering over a country will display its name and the corresponding trade balance in the form of a tooltip. If a user chooses to learn more about the trading values of a country, they can click on said country and the "scene" will change to show a bar chart containing the export and import values. This detailed information can give the user an idea on how close or far the trading balance can be.
+
+The annotations in this visualization are formatted in two separate but related ways. The first is a color legend. The legend is shown on the bottom-right of the window. The red-most color at the top contains deficits of over 25k million USD, while the green-most color contains a surplus of over 30k million USD. Values may go beyond that. Because the country with the largest deficit differs greatly in absolute value than the country with the largest surplus (300k vs 30k), this scale is used to more vibrantly highlight those extremes. Countries within the median scale will appear more orange. The second but related annotation is a tooltip that contains the country's name and trade balance when a user chooses to hover over said country. The tooltip will change upon hovering over other countries. The tooltip will be cleared if no countries are hovered.
+
+This visualization also contains a subtle but useful parameter. Because some countries have very small surface areas compared to others, the map is zoomable by using the mouse wheel. Scrolling up will zoom into the map, and vice-versa. The user can zoom into an area of interest and can more easily click on smaller countries to enter their scene. The map can also be panned when zoomed by holding down on the left mouse button and dragging. 
+
+The triggers for this visualization consist of clicking on the country of interest to change the scene. The outline of the country will be zoomed in and a bar chart containing additional information will be displayed. Clicking on the country again will trigger the map to zoom back to the world overview. While zoomed in on a country, clicking on another country within view will change the scene to that country without needing to zoom out.
