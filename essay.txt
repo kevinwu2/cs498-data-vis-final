@@ -11,6 +11,7 @@ Quick summary of events:
   - Map and text may be slow to render at times.
   - Sometimes a country may not zoom in with a single click. Clicking again should fix the issue.
   - Some countries that have non-contiguous territories like France and Russia will not appear to zoom in entirely.
+  - The Legend values do not have commas
 
 Detailed information about this visualization:
 
