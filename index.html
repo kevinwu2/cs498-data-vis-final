@@ -141,6 +141,8 @@ svg.append("rect")
     .attr("height", height)
     .on("click", reset);
 
+
+
 svg.call(zoom);
 
 // main world map
@@ -375,7 +377,7 @@ function clicked(d) {
             .enter().append("text")
               .attr("x", function(d) { return bx(d.kind) + 5; })
               .attr("y", function(d) { return by(d.val) + 15; })
-              .attr("text-anchor", "left")
+              .attr("text-anchor", "start")
               .attr("font-size", "10px")
               .style("fill", "white")
               .text(function(d) { return numberWithCommas(Math.round(d.val)); });
@@ -517,4 +519,17 @@ function showEssay()
     essayDiv.classed("hidden", true);
   }
 }
+
+// Add title to bottom right
+svg.append("text")
+    .attr("x", width - 25)
+    .attr("y", height - 25)
+    .attr("text-anchor", "end")
+    .style("font-size", "24px")
+    .style("font-weight", "bold")
+    .style("font-family", "sans-serif")
+    .style("text-shadow", "2px 2px black")
+    .style("fill", "white")
+    .text("US Trade Balance with Partnered Countries Worldwide");
+
 </script>
