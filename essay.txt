@@ -15,7 +15,7 @@ Quick summary of events:
 
 Detailed information about this visualization:
 
-This is a visualization of US Trade Balance with Partnered Countries Worldwide. A trade balance is a function of the amount of revenue produced by exports minus the cost of purchasing imports. (Trade Balance = Exports - Imports). Therefore, a trade deficit is a negative balance while a trade surplus is a positive balance.
+This is a visualization of the 2017 US Trade Balance with Partnered Countries Worldwide. A trade balance is a function of the amount of revenue produced by exports minus the cost of purchasing imports. (Trade Balance = Exports - Imports). Therefore, a trade deficit is a negative balance while a trade surplus is a positive balance.
 
 This visualization follows an interactive slide show but with a twist. An interactive slideshow consists of various "scenes" in which each scene contains some addiional information about said scene. The user has the choice to view such details or choose to ignore scenes they are not interested in. This visualization follows that structure. Each "scene" consists of a country. Hovering over a country will display its name and the corresponding trade balance in the form of a tooltip. If a user chooses to learn more about the trading values of a country, they can click on said country and the "scene" will change to show a bar chart containing the export and import values. This detailed information can give the user an idea on how close or far the trading balance can be.
 
