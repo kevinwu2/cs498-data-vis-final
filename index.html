@@ -97,11 +97,13 @@ svg {
 
 </style>
 <body>
+  <!-- Tooltip div, hidden by default -->
   <div id="tooltip" class="hidden">
     <p><strong><span id="ctyname">Country</span></strong></p>
     <p>Trade Balance: $ <span id="value">100</span> M</p>
   </div>
 
+  <!-- Button div to display the essay -->
   <div id="button-option">
     <input name="updateButton"
            type="button"
@@ -109,29 +111,38 @@ svg {
            onclick="showEssay()" />
   </div>
 
+  <!-- Essay written in external document, embedded as an object -->
   <div id="essay-div" class="hidden">
     <object id="essay" type="text/html" data="essay.html" border="1">
     </object>
   </div>
+
+<!-- All scripts from d3js official site, no third parties -->
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 <script src="https://d3js.org/topojson.v2.min.js"></script>
+
+<!-- Custom scripts and functions start here -->
 <script>
 
+// dimensions for the first level svg
 var width = window.innerWidth,
     height = window.innerHeight,
     active = d3.select(null);
 
+// projection information
 var projection = d3.geoNaturalEarth1()
     .scale(275)
     .translate([width / 2, height / 2]);
 
 var path = d3.geoPath(projection);
 
+// zoom configuration
 var zoom = d3.zoom()
     .scaleExtent([1, 8])
     .on("zoom", zoomed);
 
+// first level svg element
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height)
@@ -143,8 +154,7 @@ svg.append("rect")
     .attr("height", height)
     .on("click", reset);
 
-
-
+// enable zooming
 svg.call(zoom);
 
 // main world map
@@ -155,13 +165,14 @@ var boxMargin = {top: 20, right: 20, bottom: 70, left: 75};
 var boxWidth = 350, boxHeight = 400,
     boxInnerWidth = boxWidth - boxMargin.left - boxMargin.right,
     boxInnerHeight = boxHeight - boxMargin.top - boxMargin.bottom;
-
+// bar chart positions
 var bx = d3.scaleBand().rangeRound([0, boxInnerWidth]).padding(0.05);
 var by = d3.scaleLinear().range([boxInnerHeight, 0]);
-
+// axis positions
 var xAxis = d3.axisBottom(bx);
 var yAxis = d3.axisLeft(by).ticks(5);
 
+// load data in this particular order
 d3.queue()
   .defer(d3.json, "https://d3js.org/world-50m.v1.json")
   .defer(d3.csv, "data.csv")
@@ -170,6 +181,7 @@ d3.queue()
 function ready(error, world, trade_data) {
   if (error) throw error;
 
+  // temporary map arrays
   d_bal = {};
   d_exp = {};
   d_imp = {};
@@ -177,14 +189,17 @@ function ready(error, world, trade_data) {
 
   //console.log(trade_data);
 
+  // get country data
   topodata = topojson.feature(world, world.objects.countries);
 
+  // populate the temp array from trade data
   trade_data.forEach(function(d) {
     d_bal[d.M49] = +d.BAL;
     d_exp[d.M49] = +d.EYR;
     d_imp[d.M49] = +d.IYR;
     d_cty[d.M49] = d.CTYNAME;
   });
+  // insert the trade_data into the topographic data
   topodata.features.forEach(function(d) {
     d.bal = d_bal[d.id];
     d.exp = d_exp[d.id];
@@ -194,11 +209,14 @@ function ready(error, world, trade_data) {
 
   //console.log(topodata.features);
 
+  // get the max (most positive) balance data
   var maxKey = Object.keys(d_bal).reduce((a, b) => d_bal[a] > d_bal[b] ? a : b);
 
+  // create a scale with the max and negative of the max as the intervals
   var color = d3.scaleSequential(d3.interpolateRdYlGn)
     .domain([-d_bal[maxKey],d_bal[maxKey]]);
 
+  // draw country area on screen
   g.append("g")
       .attr("class", "countries")
     .selectAll("path")
@@ -210,6 +228,7 @@ function ready(error, world, trade_data) {
       .on("mouseover", showtooltip)
       .on("mouseout", hidetooltip);
 
+  // draw the country borders
   g.append("path")
       .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
       .attr("class", "country-borders")
@@ -282,6 +301,7 @@ function clicked(d) {
   var dataset = (d != null) && (typeof d.bal != "undefined");
   if(dataset == true)
   {
+    // prepare a pair of import/export values for bar chart
     var text = '[' +
         '{"kind": "export", "val": ' + d.exp + '},' +
         '{"kind": "import", "val": ' + d.imp + '} ]';
@@ -302,7 +322,7 @@ function clicked(d) {
 
         checkBox();
 
-        // if dataset is ready and active is true
+        // if dataset is ready
         if(dataset)
         {
           // create chart box area with id: popupbox
@@ -439,6 +459,7 @@ function showtooltip(d)
     tip.style("left", x + "px")
        .style("top", y + "px");
 
+    // enable tooltip now
     d3.select("#tooltip").classed("hidden", false);
 
   }
@@ -455,6 +476,7 @@ function zoomed() {
   g.attr("transform", d3.event.transform);
 }
 
+// convert numbers to string with comma separated by 1000
 const numberWithCommas = (x) => {
   var parts = x.toString().split(".");
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
