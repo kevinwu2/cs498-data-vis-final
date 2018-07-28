@@ -171,7 +171,6 @@ d3.queue()
   .defer(d3.csv, "data.csv")
   .await(ready)
 
-//d3.json("https://d3js.org/world-50m.v1.json", function(error, world) {
 function ready(error, world, trade_data) {
   if (error) throw error;
 
@@ -269,36 +268,10 @@ function ready(error, world, trade_data) {
 
 function clicked(d) {
 
-  /*
-  if(d != null)
-  {
-    console.log(d.cty);
-    console.log(d.bal);
-    console.log(d.exp);
-    console.log(d.imp);
-  }
-  */
-
+  //console.log(d);
   if (active.node() === this) return reset();
   active.classed("active", false);
   active = d3.select(this).classed("active", true);
-
-/*
-  var x, y, k;
-
-  if (d && centered !== d) {
-    var centroid = path.centroid(d);
-    x = centroid[0];
-    y = centroid[1];
-    k = 4;
-    centered = d;
-  } else {
-    x = width / 2;
-    y = height / 2;
-    k = 1;
-    centered = null;
-  }
-*/
 
   var bounds = path.bounds(d),
       dx = bounds[1][0] - bounds[0][0],
@@ -307,8 +280,6 @@ function clicked(d) {
       y = (bounds[0][1] + bounds[1][1]) / 2,
       scale = Math.max(1, Math.min(8, 0.9 / Math.max(dx / width, dy / height))),
       translate = [width / 2 - scale * x, height / 2 - scale * y];
-
-  //console.log(centered)
 
   // dataset is true and will point to the json data if data is available,
   // otherwise false from here on out
@@ -325,10 +296,7 @@ function clicked(d) {
     by.domain([0, d3.max(dataset, function(d) { return d.val; }) ]);
 
   }
-/*
-  g.selectAll("path")
-      .classed("active", centered && function(d) { return d === centered; });
-*/
+
   svg.transition()
       // transition code
       .duration(750)
@@ -438,8 +406,7 @@ function reset() {
 
   svg.transition()
       .duration(750)
-      // .call( zoom.transform, d3.zoomIdentity.translate(0, 0).scale(1) ); // not in d3 v4
-      .call( zoom.transform, d3.zoomIdentity ); // updated for d3 v4
+      .call( zoom.transform, d3.zoomIdentity );
 }
 
 function stopped() {
