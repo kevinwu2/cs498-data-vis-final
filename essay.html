@@ -10,17 +10,15 @@ p {
 }
 </style>
 <body>
-<h3>
-Quick summary of events:
-</h3>
+<h3>Quick summary of events:</h3>
 <ul>
 	<li>Clicking on the button "About this Visualization" will bring you here. Clicking on the button again will close this box.</li>
 	<li>The country's color will change to "powderblue" when hovered.</li>
-	<li>A tooltip that follows your mouse will be shown when hovering over a country that contains data (not colored black)</li>
-	<li>Each country can be clicked. Clicking on a country will zoom in the view and a bar chart will be shown on the bottom right.</li>
+	<li>A tooltip that follows your mouse will be shown when hovering over a country that contains data (not colored black).</li>
+	<li>Each country can be clicked. Clicking on a country will zoom into the view and a bar chart will be shown on the right.</li>
 	<li>Click on the country again will zoom out to the world overview and that country's bar chart will be cleared.</li>
-	<li>Scrolling the mouse wheel up will zoom in the view. Scrolling the mouse wheel down will zoom out.</li>
-	<li>While zoomed-in, holding the left mouse button and moving the mouse allows you to pan across the view.</li>
+	<li>Scrolling the mouse wheel up will zoom in to the view. Scrolling the mouse wheel down will zoom out.</li>
+	<li>While zoomed-in, holding the left mouse button and moving the mouse will allow you to pan across the view.</li>
 </ul>
 <h3>
 Known issues:
@@ -29,19 +27,17 @@ Known issues:
 	<li>Map and text may be slow to render at times.</li>
  	<li>Sometimes a country may not zoom in with a single click. Clicking again should fix the issue.</li>
 	<li>Some countries that have non-contiguous territories like France and Russia will not appear to zoom in entirely.</li>
-	<li>The Legend values do not have commas</li>
+	<li>The Legend values do not have commas.</li>
 </ul>
-<h2>
-Details about this visualization:
-</h2>
+<h2>Details about this visualization:</h2>
 <p>
 This is a visualization of the 2017 US Trade Balance with Partnered Countries Worldwide. A trade balance is a function of the amount of revenue produced by exports minus the cost of purchasing imports. (Trade Balance = Exports - Imports). Therefore, a trade deficit is a negative balance while a trade surplus is a positive balance.
 </p>
 <p>
-This visualization follows an interactive slide show but with a twist. An interactive slideshow consists of various "scenes" in which each scene contains some addiional information about said scene. The user has the choice to view such details or choose to ignore scenes they are not interested in. This visualization follows that structure. Each "scene" consists of a country. Hovering over a country will display its name and the corresponding trade balance in the form of a tooltip. If a user chooses to learn more about the trading values of a country, they can click on said country and the "scene" will change to show a bar chart containing the export and import values. This detailed information can give the user an idea on how close or far the trading balance can be.
+This visualization follows an interactive slide show hybrid structure but with a twist. An interactive slideshow consists of various "scenes" in which each scene will contain some addiional information. The user has the choice to view such details or choose to ignore scenes they are not interested in. This visualization follows that structure. Each "scene" consists of a country. Hovering over a country will display its name and the corresponding trade balance in the form of a tooltip. If a user chooses to learn more about the trading values of a country, they can click on a country and the "scene" will change to show a bar chart containing the export and import values. This detailed information can give the user an idea on how close or far the trading balance can be.
 </p>
 <p>
-The annotations in this visualization are formatted in two separate but related ways. The first is a color legend. The legend is shown on the bottom-right of the window. The red-most color at the top contains deficits of over 25k million USD, while the green-most color contains a surplus of over 30k million USD. Values may go beyond that. Because the country with the largest deficit differs greatly in absolute value than the country with the largest surplus (300k vs 30k), this scale is used to more vibrantly highlight those extremes. Countries within the median scale will appear more orange. The second but related annotation is a tooltip that contains the country's name and trade balance when a user chooses to hover over said country. The tooltip will change upon hovering over other countries. The tooltip will be cleared if no countries are hovered.
+The annotations in this visualization are formatted in two separate but related ways. The first is a color legend. The legend is shown on the bottom-left of the window. The red-most color at the top contains deficits of over 25k million USD, while the green-most color contains a surplus of over 30k million USD. Values may go beyond that. Because the country with the largest deficit differs greatly in absolute value than the country with the largest surplus (300k vs 30k), this scale is used to more vibrantly highlight those extremes. Countries within the median scale will appear more orange. The second but related annotation is a tooltip that contains the country's name and trade balance when a user chooses to hover over the country. The tooltip will change upon hovering over other countries. The tooltip will be cleared if no countries are hovered.
 </p>
 <p>
 This visualization also contains a subtle but useful parameter. Because some countries have very small surface areas compared to others, the map is zoomable by using the mouse wheel. Scrolling up will zoom into the map, and vice-versa. The user can zoom into an area of interest and can more easily click on smaller countries to enter their scene. The map can also be panned when zoomed by holding down on the left mouse button and dragging. 
@@ -49,5 +45,28 @@ This visualization also contains a subtle but useful parameter. Because some cou
 <p>
 The triggers for this visualization consist of clicking on the country of interest to change the scene. The outline of the country will be zoomed in and a bar chart containing additional information will be displayed. Clicking on the country again will trigger the map to zoom back to the world overview. While zoomed in on a country, clicking on another country within view will change the scene to that country without needing to zoom out.
 </p>
+<h3>Data sources:</h3>
+<p>
+The primary trade data was taken from the "U.S. Trade in Goods by Country" from the census.gov website <a href="#src1">[1]</a>. Data was filtered to only show data from 2017. In addition, trade groups such as NAFTA, OPEC, etc were removed. Using Excel, the trade balance was calculated in a separate column. In order to map each country's data entry to its visual representation, each entry needs a corresponding M49 code used by d3/topojson. An additional dataset containing these codes <a href="#src2">[2]</a> was used as a lookup table. In Excel, the VLOOKUP function was used to map each country's name in the trade data with the country's M49 code. Some countries that have different naming order like "Korea, South" vs "South Korea" were manually fixed. Putting all this together, each visual representation of a country was mapped with the corresponding trade data.
+</p>
+<div id="src1">[1] <a href="https://www.census.gov/foreign-trade/balance/index.html">Foreign Trade - U.S. Trade by Country</a></div>
+<div id="src2">[2] <a href="https://gist.github.com/tadast/8827699">countries_codes_and_coordinates.csv</a></div>
+<h3>Additional References:</h3>
+<p>
+Thanks to the following examples for guidance:
+</p>
+<ul>
+	<li><a href="https://bl.ocks.org/mbostock/4090848">U.S. States TopoJSON</a></li>
+	<li><a href="https://bl.ocks.org/mbostock/2206590">click-to-zoom via transform</a></li>
+	<li><a href="https://bl.ocks.org/iamkevinv/0a24e9126cd2fa6b283c6f2d774b69a2">Zoom to Bounding Box II - Updated for d3 v4</a></li>
+	<li><a href="http://bl.ocks.org/mapsam/6083585">D3: Interacting With Topojson Properties</a></li>
+	<li><a href="http://bl.ocks.org/micahstubbs/8e15870eb432a21f0bc4d3d527b2d14f">world map 02 update to d3 v4</a></li>
+	<li><a href="https://bl.ocks.org/mbostock/4060606">Choropleth</a></li>
+	<li><a href="https://bost.ocks.org/mike/transition/">Working with Transitions</a></li>
+	<li><a href="https://bl.ocks.org/sarubenfeld/56dc691df199b4055d90e66b9d5fc0d2">D3: How you can use Tooltips in v4</a></li>
+	<li><a href="https://gist.github.com/john-guerra/a75733ba5767813d4f31026d1d5e6244">Discrete vs continuous sequential scales with d3-scale-chromatic</a></li>
+	<li><a href="http://bl.ocks.org/curran/3094b37e63b918bab0a06787e161607b">D3 4.0 Sequential Scales Explorer</a></li>
+	<li><a href="https://stackoverflow.com/a/1473600">https://stackoverflow.com/a/1473600</a></li>
+</ul>
 </body>
 </html>
